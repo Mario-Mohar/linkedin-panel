@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LinkedIn Panel</title>
+<link rel="stylesheet" href="/styles.css">
+</head><body>
+<!-- The visible strings are filled in by app.js from /api/i18n; what stands here
+     is only what is shown before the catalogue has loaded. -->
+<header class="topbar"><span class="brand">📊 LinkedIn Panel</span><span id="meta" class="meta"></span></header>
+<nav class="tabs" role="tablist" aria-label="View">
+  <button type="button" class="tab on" id="tabPosts" role="tab" aria-selected="true">My posts</button>
+  <button type="button" class="tab" id="tabFeed" role="tab" aria-selected="false">Feed</button>
+</nav>
+<main id="app" role="tabpanel"><p class="loading">…</p></main>
+<script type="module" src="/app.js"></script>
+</body></html>
