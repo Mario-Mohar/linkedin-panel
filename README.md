@@ -6,6 +6,16 @@ comments.
 
 **[English](#english) · [Deutsch](#deutsch)**
 
+<p align="center">
+  <img src="docs/dashboard.png" alt="Dashboard: a notice that these are the bundled example numbers, a Collect section with a field for posts per run and buttons for sign-in, collecting posts and fetching reach, then tiles for followers, connections, posts, average reactions, average impressions and average engagement rate, with a follower trend chart and average reactions by weekday" width="820">
+</p>
+
+<p align="center">
+  <img src="docs/posts.png" alt="Post table with columns for the post text, day and date, impressions, reach, reactions, comments, reposts, engagement rate and a benchmark badge such as Top 10 percent" width="820">
+</p>
+
+<p align="center"><sub>Screenshots taken with the bundled example data, which is invented. · Screenshots mit den mitgelieferten Beispieldaten, die Zahlen sind erfunden.</sub></p>
+
 ---
 
 # English

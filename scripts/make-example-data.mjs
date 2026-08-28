@@ -38,18 +38,18 @@ const REFERENCE_NOW = Date.parse('2026-08-28T09:00:00.000Z');
 const DAY = 86_400_000;
 
 const TEXTS = [
-  'Wir haben unsere Deploy-Pipeline von 20 auf 4 Minuten gebracht. Der größte Hebel war nicht der Build, sondern das Caching der Abhängigkeiten.',
-  'Drei Jahre Freelancing, drei Dinge, die ich anders machen würde. Vor allem: früher Nein sagen zu Projekten ohne klaren Ansprechpartner.',
-  'Kurze Frage in die Runde: schreibt ihr Tests vor oder nach dem Feature? Ich habe meine Meinung dazu in den letzten Monaten geändert.',
-  'Ein Kunde fragte, warum die Migration drei Wochen dauert, wenn das Tool sie in einer Stunde macht. Die Antwort steckt im Datenmodell, nicht im Tool.',
-  'Monitoring ohne Alarme ist ein Poster an der Wand. Wir haben unsere Dashboards halbiert und dafür vier Alarme scharf gestellt.',
-  'Die beste Dokumentation, die ich dieses Jahr gelesen habe, war eine einzige Datei mit dem Titel "Warum es so aussieht, wie es aussieht".',
-  'Wir haben ein Feature nach sechs Wochen wieder ausgebaut. Niemand hat es benutzt. Das war die günstigste Entscheidung des Quartals.',
-  'Codereview ist kein Qualitätstor, sondern Wissenstransfer. Sobald man es so behandelt, ändert sich der Ton in den Kommentaren.',
-  'Legacy heißt nicht alt. Legacy heißt: niemand traut sich, es anzufassen. Das ist ein Dokumentationsproblem, kein Technikproblem.',
-  'Wir messen seit einem Quartal, wie lange ein Ticket wartet statt wie lange es dauert. Die Zahlen waren unangenehm und hilfreich.',
-  'Kleiner Hinweis für alle mit Docker-Setups: ein gepinnter Basis-Image-Tag hat uns dieses Jahr zwei Ausfälle erspart.',
-  'Ich habe aufgehört, Schätzungen in Stunden abzugeben, und gebe stattdessen Bandbreiten mit Annahmen an. Die Gespräche sind seitdem besser.',
+  'We got our deploy pipeline from 20 minutes down to 4. The biggest lever was not the build, it was caching the dependencies.',
+  'Three years freelancing, three things I would do differently. Mostly: say no earlier to projects without a clear counterpart.',
+  'Genuine question: do you write tests before or after the feature? I have changed my mind about this over the last few months.',
+  'A client asked why the migration takes three weeks when the tool does it in an hour. The answer is in the data model, not the tool.',
+  'Monitoring without alerts is a poster on the wall. We halved our dashboards and armed four alerts instead.',
+  'The best documentation I read this year was a single file titled "Why it looks the way it looks".',
+  'We removed a feature after six weeks. Nobody had used it. That was the cheapest decision of the quarter.',
+  'Code review is not a quality gate, it is knowledge transfer. The tone in the comments changes the moment you treat it that way.',
+  'Legacy does not mean old. Legacy means nobody dares to touch it. That is a documentation problem, not a technical one.',
+  'For a quarter now we measure how long a ticket waits instead of how long it takes. The numbers were uncomfortable and useful.',
+  'Small note for everyone running Docker: a pinned base image tag saved us two outages this year.',
+  'I stopped giving estimates in hours and give ranges with the assumptions instead. The conversations have been better since.',
 ];
 
 const posts = [];
