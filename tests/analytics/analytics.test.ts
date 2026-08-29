@@ -28,7 +28,9 @@ describe('computeDashboard', () => {
     expect(b.percentile).toBeNull();
     const a = d.posts.find((p) => p.postUrn === 'a')!;
     expect(a.fresh).toBe(false);
-    expect(a.percentile).not.toBeNull();
+    // 'a' is the only matured post here, so there is nothing to rank it
+    // against. See the percentile block below for the ranking itself.
+    expect(a.percentile).toBeNull();
   });
   it('Ø reactions only over non-fresh posts', () => {
     expect(d.kpis.avgReactions).toBe(50); // only post a counts
@@ -154,6 +156,40 @@ describe('computeDashboard when reach exists only on fresh posts', () => {
   it('still reports the impressions it collected', () => {
     expect(d.kpis.totalImpressions).toBe(267);
     expect(d.posts[0].impressions).toBe(267);
+  });
+});
+
+describe('percentile', () => {
+  // Three matured posts, so each one has others to be ranked against.
+  const ranked: LoadedData = {
+    posts: new Map([
+      ['low', mkPost('low', '2026-04-09T08:00:00.000Z')],
+      ['mid', mkPost('mid', '2026-04-10T08:00:00.000Z')],
+      ['top', mkPost('top', '2026-04-11T08:00:00.000Z')],
+      ['new', mkPost('new', '2026-07-16T08:00:00.000Z')],
+    ]),
+    metrics: [
+      mkMetric('low', '2026-07-18T00:00:00.000Z', 10),
+      mkMetric('mid', '2026-07-18T00:00:00.000Z', 20),
+      mkMetric('top', '2026-07-18T00:00:00.000Z', 30),
+      mkMetric('new', '2026-07-18T00:00:00.000Z', 99),
+    ],
+    profile: [{ capturedAt: '2026-07-18T00:00:00.000Z', followers: 500, connections: 491 }],
+  };
+  const r = computeDashboard(ranked, { now, freshDays: 21, tz: 'Europe/Berlin' });
+  const pct = (urn: string) => r.posts.find((p) => p.postUrn === urn)!.percentile;
+
+  it('the best matured post reaches 100', () => {
+    expect(pct('top')).toBe(100);
+  });
+  it('the weakest matured post is 0', () => {
+    expect(pct('low')).toBe(0);
+  });
+  it('ranks against the other matured posts, not against itself', () => {
+    expect(pct('mid')).toBe(50);
+  });
+  it('a fresh post has no percentile however strong it is', () => {
+    expect(pct('new')).toBeNull();
   });
 });
 

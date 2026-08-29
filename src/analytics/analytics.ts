@@ -78,12 +78,19 @@ export function computeDashboard(
     });
   }
 
-  // Benchmark (percentile of reactions) ONLY among non-fresh posts
+  // Benchmark (percentile of reactions) ONLY among non-fresh posts.
+  //
+  // Ranked against the OTHER mature posts, not against all of them: `ranked`
+  // contains the post being scored, so dividing by its full length capped the
+  // best post at (n-1)/n and left a lone mature post on 0 -- "worse than
+  // everything" for the only data point there is. With fewer than two mature
+  // posts there is nothing to compare against, so there is no percentile.
   const ranked = rows.filter((r) => !r.fresh).map((r) => r.reactions).sort((a, b) => a - b);
+  const others = ranked.length - 1;
   for (const r of rows) {
-    if (r.fresh || ranked.length === 0) { r.percentile = null; continue; }
+    if (r.fresh || others < 1) { r.percentile = null; continue; }
     const below = ranked.filter((x) => x < r.reactions).length;
-    r.percentile = Math.round((below / ranked.length) * 100); // 0..100 (higher is better)
+    r.percentile = Math.round((below / others) * 100); // 0..100 (higher is better)
   }
   rows.sort((a, b) => b.reactions - a.reactions);
 
