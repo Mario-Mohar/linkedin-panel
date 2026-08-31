@@ -1,21 +1,95 @@
 name: CI
 
+# Runs on every pull request, forks included, and on pushes to main. Read
+# access only: a fork's token is read-only anyway, and a workflow that executes
+# contributed code has no business holding a write one. Posting the result is a
+# separate workflow, pr-report.yml, which runs from the default branch and
+# never executes any of the code under test.
+
 on:
+  # Only the default branch on push. A branch with an open pull request would
+  # otherwise be checked twice for every commit -- once as a push and once as a
+  # pull request -- which doubles the minutes and puts two identically named
+  # status checks on the same commit.
   push:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
+    name: Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
+
       - run: npm ci
-      # The browser test needs a real Chromium; the runner has none installed.
-      - run: npx playwright install --with-deps chromium
-      - run: npm run typecheck
-      - run: npm test
+
+      - name: Install Chromium
+        # The browser session test drives a real Chromium; the runner has none.
+        run: npx playwright install --with-deps chromium
+
+      - name: Types
+        id: types
+        continue-on-error: true
+        run: npm run typecheck
+
+      - name: Tests
+        id: tests
+        continue-on-error: true
+        run: npx vitest run --reporter=default --reporter=junit --outputFile.junit=vitest-junit.xml
+
+      - name: Build report
+        id: report
+        if: always()
+        env:
+          TYPES: ${{ steps.types.outcome }}
+          TESTS: ${{ steps.tests.outcome }}
+        run: |
+          mark() { if [ "$1" = success ]; then echo "✅"; else echo "❌"; fi; }
+          tests_line="$(python3 .github/scripts/junit_summary.py vitest-junit.xml)"
+
+          mkdir -p pr-report
+          {
+            echo "| Check | | Detail |"
+            echo "| --- | :-: | --- |"
+            echo "| Types | $(mark "$TYPES") | tsc --noEmit |"
+            echo "| Tests | $(mark "$TESTS") | vitest — ${tests_line} |"
+          } > pr-report/report.md
+
+          overall=success
+          for outcome in "$TYPES" "$TESTS"; do
+            [ "$outcome" = success ] || overall=failure
+          done
+          echo "$overall" > pr-report/status.txt
+          echo "overall=$overall" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            echo "${{ github.event.pull_request.number }}" > pr-report/pr-number.txt
+          fi
+          cat pr-report/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-report
+          path: pr-report/
+          retention-days: 3
+
+      - name: Fail if a check failed
+        if: always() && steps.report.outputs.overall != 'success'
+        run: |
+          echo "One or more checks failed; the table is in the job summary."
+          exit 1

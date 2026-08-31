@@ -653,3 +653,12 @@ MIT, siehe [LICENSE](LICENSE).
 - Bei „Nicht eingeloggt": `npm run login` erneut ausführen.
 - Automatisierte Zugriffe auf LinkedIn sind laut deren Nutzungsbedingungen nicht
   erlaubt, auch nicht auf die eigenen Daten. Ob dich das stört, entscheidest du selbst.
+
+## Contributing
+
+Bug reports, feature requests and pull requests are all welcome — finding
+something that is broken and writing it down is a real contribution, and the
+most useful one.
+
+**[CONTRIBUTING.md](CONTRIBUTING.md)** has the details: what makes a report
+useful, how to send a fix through a fork, and what happens after you submit.

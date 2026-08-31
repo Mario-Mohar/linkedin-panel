@@ -1,0 +1,42 @@
+name: Bug report
+description: Something behaves differently than it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste a session cookie, a password, or real post content.**
+        The bundled example data is there so bugs can be shown without it.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: The command you ran
+      render: shell
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where
+      options: ["Sign-in", "Collecting posts", "Fetching reach", "Dashboard", "Scheduler", "Somewhere else"]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Node version
+      description: "`node --version`"
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Output, redacted
+      render: shell
