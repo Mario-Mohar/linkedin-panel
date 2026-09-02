@@ -48,7 +48,18 @@ jobs:
       - name: Tests
         id: tests
         continue-on-error: true
-        run: npx vitest run --reporter=default --reporter=junit --outputFile.junit=vitest-junit.xml
+        run: npx vitest run --reporter=default --reporter=junit --outputFile.junit=vitest-junit.xml --coverage --coverage.reporter=text --coverage.reporter=lcov
+
+      # Codecov keeps the history behind the number and feeds the badge in the
+      # README. It never gates: a bad day at Codecov is no reason to fail a pull
+      # request, and a fork or a Dependabot branch has no secrets to offer
+      # anyway. The repository is public, so the upload needs no token.
+      - name: Coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: false
 
       - name: Build report
         id: report
