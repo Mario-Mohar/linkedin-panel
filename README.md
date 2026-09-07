@@ -1,5 +1,7 @@
 # LinkedIn Panel
 
+[![codecov](https://codecov.io/gh/Mario-Mohar/linkedin-panel/graph/badge.svg)](https://codecov.io/gh/Mario-Mohar/linkedin-panel)
+
 Collects your own LinkedIn posts, their metrics and your follower count as a time
 series, and shows them in a local dashboard. Read-only: it never posts, likes or
 comments.
