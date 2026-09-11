@@ -22,15 +22,13 @@
     "feed": "tsx src/cli/feed.ts",
     "reset": "node scripts/reset-data.mjs"
   },
-  "dependencies": {
-    "playwright": "^1.62.1"
-  },
   "devDependencies": {
-    "@types/node": "^26.4.0",
-    "@vitest/coverage-v8": "^4.1.11",
+    "@types/node": "^26.5.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "playwright": "^1.63.0",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.0"
   },
   "license": "MIT",
   "description": "Collects your own LinkedIn posts, their reach and your follower count as a time series, and shows them in a local dashboard.",
