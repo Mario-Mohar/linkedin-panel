@@ -44,6 +44,10 @@ describe('server', () => {
     // for the real, discriminating guard coverage.
     expect((await get('/../src/server/server.ts')).status).toBe(404);
   });
+  it('GET /api/post/ with a malformed escape answers 400 and keeps running', async () => {
+    expect((await get('/api/post/%E0%A4%A')).status).toBe(400);
+    expect((await get('/api/run')).status).toBe(200);
+  });
   it('GET /api/feed returns the FeedRun (or empty)', async () => {
     const { status, body } = await get('/api/feed');
     expect(status).toBe(200);

@@ -52,8 +52,20 @@ export function createServer(opts: { store: Store; cfg: AppConfig; webDir: strin
   const i18n = createTranslator(opts.cfg.uiLang);
   const runner = opts.runner ?? new Runner();
   return http.createServer((req, res) => {
-    const url = new URL(req.url ?? '/', 'http://localhost');
     const send = (code: number, type: string, body: string | Buffer) => { res.writeHead(code, { 'Content-Type': type }); res.end(body); };
+    // A throw in here would end the whole process, and with it any collector
+    // the panel started. Any web page can send a GET to localhost, so one bad
+    // request must cost a 500, not the server.
+    try {
+      handle(req, send);
+    } catch {
+      if (res.headersSent) res.destroy();
+      else send(500, 'application/json', JSON.stringify({ error: 'internal error' }));
+    }
+  });
+
+  function handle(req: http.IncomingMessage, send: (code: number, type: string, body: string | Buffer) => void): void {
+    const url = new URL(req.url ?? '/', 'http://localhost');
 
     // The frontend fetches the message catalogue once at startup and labels
     // itself with it, so there is one source for the texts instead of one in
@@ -77,7 +89,12 @@ export function createServer(opts: { store: Store; cfg: AppConfig; webDir: strin
     }
     if (url.pathname.startsWith('/api/post/')) {
       opts.store.reload();
-      const urn = decodeURIComponent(url.pathname.slice('/api/post/'.length));
+      let urn: string;
+      try {
+        urn = decodeURIComponent(url.pathname.slice('/api/post/'.length));
+      } catch {
+        return send(400, 'application/json', JSON.stringify({ error: 'bad request' }));
+      }
       return send(200, 'application/json', JSON.stringify(computePostHistory(opts.store.data, urn)));
     }
     // --- starting collectors from the panel ---
@@ -110,5 +127,5 @@ export function createServer(opts: { store: Store; cfg: AppConfig; webDir: strin
     const file = resolveStaticFile(opts.webDir, url.pathname);
     if (!file || !fs.existsSync(file) || !fs.statSync(file).isFile()) return send(404, 'text/plain', 'not found');
     send(200, MIME[path.extname(file)] ?? 'application/octet-stream', fs.readFileSync(file));
-  });
+  }
 }
