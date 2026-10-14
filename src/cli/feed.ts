@@ -9,10 +9,12 @@ import { parseRelevance, parseDrafts, hasRelevanceArray } from '../ai/parse.js';
 import { createTranslator } from '../i18n/index.js';
 
 import { getOwnName } from '../collector/collector.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
-const store = openStore(cfg.dataDir, cfg.machineId);
 const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('feed', i18n);
+const store = openStore(cfg.dataDir, cfg.machineId);
 const ownPosts = [...store.data.posts.values()]
   .sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1))
   .map((p) => p.textExcerpt).filter(Boolean).slice(0, 5);

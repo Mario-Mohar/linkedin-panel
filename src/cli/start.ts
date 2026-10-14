@@ -4,10 +4,12 @@ import { launchSession } from '../browser/session.js';
 import { runCollection } from '../collector/collector.js';
 import { startScheduler } from '../scheduler/scheduler.js';
 import { createTranslator } from '../i18n/index.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
-const store = openStore(cfg.dataDir, cfg.machineId);
 const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('start', i18n);
+const store = openStore(cfg.dataDir, cfg.machineId);
 
 const tick = async (): Promise<number[]> => {
   const session = await launchSession({ profileDir: cfg.browserProfileDir, headless: true });

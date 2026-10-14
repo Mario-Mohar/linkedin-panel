@@ -7,9 +7,11 @@ import { isVerified } from '../parser/summary-labels.js';
 import { resolveLabels } from './li-lang.js';
 import { parseSummary, missingFields } from '../parser/summary-parser.js';
 import { createTranslator } from '../i18n/index.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
 const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('analytics', i18n);
 const log = (m: string) => console.log(`[analytics] ${m}`);
 
 /**

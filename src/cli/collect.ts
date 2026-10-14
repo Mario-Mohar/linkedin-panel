@@ -4,10 +4,12 @@ import { launchSession, ensureLoggedIn } from '../browser/session.js';
 import { runCollection } from '../collector/collector.js';
 import { createTranslator } from '../i18n/index.js';
 import { resolveLabels } from './li-lang.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
-const store = openStore(cfg.dataDir, cfg.machineId);
 const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('collect', i18n);
+const store = openStore(cfg.dataDir, cfg.machineId);
 const session = await launchSession({ profileDir: cfg.browserProfileDir, headless: true });
 try {
   // Navigate first so the language can be detected off the real page.

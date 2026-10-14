@@ -1,9 +1,11 @@
 import { loadConfig } from '../config.js';
 import { launchSession, isLoggedIn } from '../browser/session.js';
 import { createTranslator } from '../i18n/index.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
 const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('login', i18n);
 const session = await launchSession({ profileDir: cfg.browserProfileDir, headless: false });
 
 try {
