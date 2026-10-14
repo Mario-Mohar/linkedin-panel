@@ -159,6 +159,28 @@ describe('computeDashboard when reach exists only on fresh posts', () => {
   });
 });
 
+describe('follower snapshots without a count', () => {
+  // Older versions stored an unreadable follower count as 0.
+  const withZero: LoadedData = {
+    ...data,
+    profile: [
+      { capturedAt: '2026-07-10T00:00:00.000Z', followers: 1058, connections: 491 },
+      { capturedAt: '2026-07-18T00:00:00.000Z', followers: 0, connections: null },
+    ],
+  };
+  const z = computeDashboard(withZero, { now, freshDays: 21, tz: 'Europe/Berlin' });
+  it('keeps the last real count in the KPI', () => {
+    expect(z.kpis.followers).toBe(1058);
+    expect(z.kpis.connections).toBe(491);
+  });
+  it('leaves the 0 out of the trend', () => {
+    expect(z.followerTrend.map((p) => p.value)).toEqual([1058]);
+  });
+  it('computes follower quotas against the real count', () => {
+    expect(z.posts.find((p) => p.postUrn === 'a')!.followerRate).toBeGreaterThan(0);
+  });
+});
+
 describe('percentile', () => {
   // Three matured posts, so each one has others to be ranked against.
   const ranked: LoadedData = {

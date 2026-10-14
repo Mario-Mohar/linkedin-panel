@@ -1,3 +1,5 @@
+import { formatNumber, formatPct } from './format.js';
+
 const $ = (sel, el = document) => el.querySelector(sel);
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -44,7 +46,8 @@ function t(key, vars = {}) {
   return template.replace(/\{(\w+)\}/g, (_, name) => (name in vars ? String(vars[name]) : `{${name}}`));
 }
 
-const fmt = (n) => new Intl.NumberFormat(state.locale).format(n);
+const fmt = (n) => formatNumber(state.locale, n);
+const fmtPct = (v, digits = 1) => formatPct(state.locale, v, digits);
 const fmtDate = (iso) => new Date(iso).toLocaleDateString(state.locale, { weekday: 'short', day: '2-digit', month: '2-digit' });
 const fmtDateTime = (iso) => new Date(iso).toLocaleString(state.locale);
 const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -52,7 +55,7 @@ const reduceMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)
 // the honest value — not 0, which would be a claim.
 const has = (v) => v !== null && v !== undefined;
 const numOrDash = (v) => (has(v) ? fmt(v) : '–');
-const pctOrDash = (v) => (has(v) ? v.toFixed(1) + '%' : '–');
+const pctOrDash = (v) => (has(v) ? fmtPct(v) : '–');
 const withAnalytics = () => (state.data?.kpis?.postsWithAnalytics ?? 0) > 0;
 // A benchmark needs enough matured (non-fresh) posts, otherwise "Top X%" is noise.
 const MIN_MATURE_FOR_BENCHMARK = 5;
@@ -268,20 +271,20 @@ function render() {
     ${d.isExample ? `<div class="notice">${t('notice.example')}</div>` : ''}
     <section class="panel runpanel" id="runpanel">${runPanelHtml()}</section>
     <section class="kpis">
-      ${kpiCard(esc(t('kpi.followers')), d.kpis.followers ?? '–')}
+      ${kpiCard(esc(t('kpi.followers')), numOrDash(d.kpis.followers))}
       ${kpiCard(
         esc(t('kpi.connections')),
         // LinkedIn stops at "500+", so showing a bare 500 would claim precision
         // the page never gave.
         d.kpis.connections === null ? '–' : fmt(d.kpis.connections) + (d.kpis.connectionsCapped ? '+' : ''),
         '', d.kpis.connectionsCapped ? t('kpi.connectionsCappedTitle') : '')}
-      ${kpiCard(esc(t('kpi.posts')), d.kpis.postCount, esc(t('kpi.postsFresh', { count: d.kpis.freshCount })))}
-      ${kpiCard(esc(t('kpi.avgReactions')), d.kpis.avgReactions)}
+      ${kpiCard(esc(t('kpi.posts')), fmt(d.kpis.postCount), esc(t('kpi.postsFresh', { count: d.kpis.freshCount })))}
+      ${kpiCard(esc(t('kpi.avgReactions')), fmt(d.kpis.avgReactions))}
       ${has(d.kpis.avgImpressions) ? kpiCard(esc(t('kpi.avgImpressions')), fmt(d.kpis.avgImpressions), '', t('kpi.avgImpressionsTitle')) : ''}
       ${has(d.kpis.avgEngagementRate)
-        ? kpiCard(esc(t('kpi.engagementRate')), d.kpis.avgEngagementRate.toFixed(1) + '%',
+        ? kpiCard(esc(t('kpi.engagementRate')), fmtPct(d.kpis.avgEngagementRate),
             esc(t('kpi.engagementRateSub', { count: d.kpis.postsWithAnalytics })), t('kpi.engagementRateTitle'))
-        : kpiCard(esc(t('kpi.followerRate')), d.kpis.avgFollowerRate.toFixed(1) + '%',
+        : kpiCard(esc(t('kpi.followerRate')), fmtPct(d.kpis.avgFollowerRate),
             // Distinguish "no reach data at all" from "reach data, but only on
             // posts that are still too fresh to benchmark" — otherwise the
             // dashboard looks like it lost the numbers it just collected.
@@ -320,14 +323,14 @@ async function showDetail(urn) {
   const reach = has(p.impressions)
     ? `<div class="cap">${esc(t('detail.reach', { impressions: fmt(p.impressions), reached: numOrDash(p.membersReached) }))}`
       + (has(p.inNetworkPct)
-        ? esc(t('detail.network', { inPct: p.inNetworkPct.toFixed(0), outPct: has(p.outNetworkPct) ? p.outNetworkPct.toFixed(0) : '–' }))
+        ? esc(t('detail.network', { inPct: fmtPct(p.inNetworkPct, 0), outPct: has(p.outNetworkPct) ? fmtPct(p.outNetworkPct, 0) : '–' }))
         : '')
       + esc(t('detail.savedSent', { saves: numOrDash(p.saves), sends: numOrDash(p.sends) })) + '</div>'
       + `<div class="cap">${esc(t('detail.profileEffect', { views: numOrDash(p.profileViews), followers: numOrDash(p.followersGained) }))}</div>`
     : `<div class="cap">${t('detail.noReach')}</div>`;
   const rate = has(p.engagementRate)
-    ? t('detail.er', { value: p.engagementRate.toFixed(1) })
-    : t('detail.quota', { value: p.followerRate.toFixed(1) });
+    ? t('detail.er', { value: fmtPct(p.engagementRate) })
+    : t('detail.quota', { value: fmtPct(p.followerRate) });
   el.innerHTML = `<b>${esc(p.textExcerpt)}</b>
     <div class="cap">${esc(t('detail.summary', {
       date: fmtDate(p.postedAt), reactions: fmt(p.reactions), comments: fmt(p.comments), reposts: fmt(p.reposts), rate,

@@ -43,7 +43,10 @@ export function computeDashboard(
 ): DashboardData {
   const WD_LABELS = opts.weekdayLabels ?? WD_FALLBACK;
   const freshMs = opts.freshDays * 86_400_000;
-  const latestFollowers = [...data.profile].sort((a, b) => (a.capturedAt < b.capturedAt ? 1 : -1))[0];
+  // Snapshots without a follower count are skipped. Older versions stored an
+  // unreadable count as 0, and that 0 is not a real data point.
+  const profile = data.profile.filter((p) => typeof p.followers === 'number' && p.followers > 0);
+  const latestFollowers = [...profile].sort((a, b) => (a.capturedAt < b.capturedAt ? 1 : -1))[0];
   const followers = latestFollowers?.followers ?? null;
 
   const rows: PostRow[] = [];
@@ -115,7 +118,7 @@ export function computeDashboard(
     return { weekday: i, label, count: wdRows.length, avgReactions: wdRows.length ? Math.round(wdRows.reduce((s, r) => s + r.reactions, 0) / wdRows.length) : 0 };
   });
 
-  const followerTrend: TrendPoint[] = [...data.profile]
+  const followerTrend: TrendPoint[] = [...profile]
     .sort((a, b) => (a.capturedAt < b.capturedAt ? -1 : 1))
     .map((p) => ({ at: p.capturedAt, value: p.followers }));
 

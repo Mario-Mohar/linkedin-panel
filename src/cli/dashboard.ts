@@ -5,8 +5,10 @@ import { openStore } from '../store/store.js';
 import { createServer } from '../server/server.js';
 import { Runner } from '../server/runner.js';
 import { createTranslator } from '../i18n/index.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
+exitIfHelp('dashboard', createTranslator(cfg.uiLang));
 const store = openStore(cfg.dataDir, cfg.machineId);
 const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../web');
 const runner = new Runner();

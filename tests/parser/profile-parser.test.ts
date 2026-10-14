@@ -25,9 +25,11 @@ describe('parseProfile', () => {
     expect(m.connections).toBe(500);
     expect(m.capturedAt).toBe(now.toISOString());
   });
-  it('unreadable followers -> 0, a null connections stays null', () => {
-    const m = parseProfile({ followersText: '', connectionsText: null }, now);
-    expect(m.followers).toBe(0);
+  it('a null connections stays null', () => {
+    const m = parseProfile({ followersText: '563 Follower', connectionsText: null }, now);
     expect(m.connections).toBeNull();
+  });
+  it('unreadable followers throw instead of becoming 0', () => {
+    expect(() => parseProfile({ followersText: '', connectionsText: null }, now)).toThrow(/unreadable/);
   });
 });

@@ -6,10 +6,14 @@ import { writeFeedRun } from '../feed/store.js';
 import { runClaude } from '../ai/claude.js';
 import { relevancePrompt, commentDraftPrompt } from '../ai/prompts.js';
 import { parseRelevance, parseDrafts, hasRelevanceArray } from '../ai/parse.js';
+import { createTranslator } from '../i18n/index.js';
 
 import { getOwnName } from '../collector/collector.js';
+import { exitIfHelp } from './help.js';
 
 const cfg = loadConfig();
+const i18n = createTranslator(cfg.uiLang);
+exitIfHelp('feed', i18n);
 const store = openStore(cfg.dataDir, cfg.machineId);
 const ownPosts = [...store.data.posts.values()]
   .sort((a, b) => (a.postedAt < b.postedAt ? 1 : -1))
@@ -23,22 +27,22 @@ try {
     page: session.page, ownName, ownPosts, ownTerms, now: new Date(), cfg, limit: 25,
     relevance: async (posts, own) => {
       const out = await runClaude(relevancePrompt(posts, own));
-      if (!hasRelevanceArray(out)) throw new Error('Keine Relevanz-Werte in der KI-Antwort');
+      if (!hasRelevanceArray(out)) throw new Error(i18n.t('cli.feed.noRelevance'));
       return parseRelevance(out, posts.length);
     },
     draft: async (post, own) => parseDrafts(await runClaude(commentDraftPrompt(post, own))),
   });
   if (run.posts.length === 0) {
-    console.log('[feed] 0 Posts geladen — Feed leer, nicht eingeloggt oder zeitweiliger Block. Später erneut versuchen. (Dashboard behält den letzten Lauf.)');
+    console.log(i18n.t('cli.feed.empty'));
     process.exitCode = 1;
   } else {
     writeFeedRun(cfg.dataDir, run);
     const withDrafts = Object.values(run.drafts).filter((d) => d.length > 0).length;
-    console.log(`[feed] ${run.posts.length} Posts gerankt, Entwürfe für ${withDrafts} Top-Posts. Im Dashboard unter „Feed".`);
+    console.log(i18n.t('cli.feed.done', { count: run.posts.length, drafts: withDrafts }));
   }
 } catch (err) {
-  console.error(`✗ Feed-Lauf abgebrochen: ${(err as Error).message.split('\n')[0]}`);
-  console.error('  Häufig: nicht eingeloggt (npm run login) oder zeitweiliger Anti-Bot-Block (HTTP 999).');
+  console.error(i18n.t('cli.feed.failed', { message: (err as Error).message.split('\n')[0] }));
+  console.error(i18n.t('cli.feed.failedHint'));
   process.exitCode = 1;
 } finally {
   await session.close();
