@@ -1,4 +1,5 @@
 import type { AppConfig } from '../config.js';
+import { createTranslator } from '../i18n/index.js';
 
 export function computeNextDelayMinutes(
   postAgesMinutes: number[],
@@ -11,6 +12,7 @@ export function computeNextDelayMinutes(
 export function startScheduler(
   opts: { cfg: AppConfig; tick: () => Promise<number[]> },
 ): { stop: () => void } {
+  const i18n = createTranslator(opts.cfg.uiLang);
   let timer: NodeJS.Timeout | null = null;
   let stopped = false;
 
@@ -21,10 +23,10 @@ export function startScheduler(
       const ages = await opts.tick();
       delayMinutes = computeNextDelayMinutes(ages, opts.cfg);
     } catch (err) {
-      console.error('[scheduler] tick fehlgeschlagen:', (err as Error).message);
+      console.error(i18n.t('cli.scheduler.tickFailed', { message: (err as Error).message }));
     }
     if (!stopped) {
-      console.log(`[scheduler] nächster Lauf in ${delayMinutes} Min.`);
+      console.log(i18n.t('cli.scheduler.next', { minutes: delayMinutes }));
       timer = setTimeout(loop, delayMinutes * 60_000);
     }
   };
