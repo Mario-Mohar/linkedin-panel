@@ -60,6 +60,19 @@ describe('runCollection', () => {
     expect(store.data.posts.size).toBe(1);
   });
 
+  it('unreadable follower count -> warn and no profile snapshot', async () => {
+    const store = mkStore();
+    const run = await runCollection({
+      store, page: fakePage, limit: 35, now,
+      loggedIn: async () => true,
+      fetchPosts: async () => [rawPost],
+      fetchProfile: async () => ({ followersText: '', connectionsText: null }),
+    });
+    expect(run.status).toBe('warn');
+    expect(store.data.profile.length).toBe(0);
+    expect(store.data.posts.size).toBe(1);
+  });
+
   it('loggedIn throws -> error run instead of an uncaught crash', async () => {
     const store = mkStore();
     const run = await runCollection({
