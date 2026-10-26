@@ -22,11 +22,13 @@
     "feed": "tsx src/cli/feed.ts",
     "reset": "node scripts/reset-data.mjs"
   },
+  "dependencies": {
+    "playwright": "^1.63.0",
+    "tsx": "^4.23.15"
+  },
   "devDependencies": {
     "@types/node": "^26.6.3",
     "@vitest/coverage-v8": "^5.0.2",
-    "playwright": "^1.63.0",
-    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.0"
   },
