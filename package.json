@@ -28,9 +28,9 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.3",
-    "@vitest/coverage-v8": "^5.0.2",
+    "@vitest/coverage-v8": "^5.0.5",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.5"
   },
   "license": "MIT",
   "description": "Collects your own LinkedIn posts, their reach and your follower count as a time series, and shows them in a local dashboard.",
